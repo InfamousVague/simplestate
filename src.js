@@ -9,7 +9,23 @@ export default class {
     this.state = state;
     this.setter = setter || function() {/*noop*/};
     this.listeners = { ['*']: [] };
+    this.reducer = function() { return this.state; };
     this.reserved = [...Object.keys(this), 'reserved'];
+  }
+
+  /**
+  * Set reducers.
+  * @param {function} reducers - The function containing reducers.
+  */
+  reducers(reducers) {
+    this.reducer = function(action, name) {
+      this.state = reducers.call(this, {
+        ...action,
+        type: name,
+      });
+
+      this.change(name);
+    };
   }
 
   /**
@@ -20,7 +36,7 @@ export default class {
     this.listeners['*'].push(er);
   }
 
- 	/**
+  /**
   * Trigger a change to the state.
   * @param {string} action - The action which triggered the change.
   */
@@ -33,7 +49,7 @@ export default class {
 
     this.setter({
       state: this.state,
-      actions: actions
+      actions: actions,
     });
   }
 
@@ -42,17 +58,15 @@ export default class {
   * @param {string} action - The actions name.
   * @param {function} reducer - The actions associated reducer (must return state).
   */
-  create(action, reducer) {
-    this.listeners[action] = [];
+  create(name, action) {
+    this.listeners[name] = [];
 
-    this[action] = function() {
-      this.state = reducer.apply(this, arguments);
-      this.change(action);
+    this[name] = function() {
+      this.reducer = this.reducer.bind(this);
+      this.reducer(action.apply(this, arguments), name);
     };
 
-    const sugar = `on${action.charAt(0).toUpperCase() + action.slice(1)}`;
-    this[sugar] = cb => this.listeners[action] = [...this.listeners[action], cb];
-
-    this.change(action);
+    const sugar = `on${name.charAt(0).toUpperCase() + name.slice(1)}`;
+    this[sugar] = l => this.listeners[name] = [...this.listeners[name], l];
   }
 }

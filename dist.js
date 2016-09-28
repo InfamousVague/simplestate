@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -25,16 +27,36 @@ var _class = function () {
     this.state = state;
     this.setter = setter || function () {/*noop*/};
     this.listeners = _defineProperty({}, '*', []);
+    this.reducer = function () {
+      return this.state;
+    };
     this.reserved = [].concat(_toConsumableArray(Object.keys(this)), ['reserved']);
   }
 
   /**
-  * Subscribe to all changes.
-  * @param {function} er - The function to call on events.
+  * Set reducers.
+  * @param {function} reducers - The function containing reducers.
   */
 
 
   _createClass(_class, [{
+    key: 'reducers',
+    value: function reducers(_reducers) {
+      this.reducer = function (action, name) {
+        this.state = _reducers.call(this, _extends({}, action, {
+          type: name
+        }));
+
+        this.change(name);
+      };
+    }
+
+    /**
+    * Subscribe to all changes.
+    * @param {function} er - The function to call on events.
+    */
+
+  }, {
     key: 'subscribe',
     value: function subscribe(er) {
       this.listeners['*'].push(er);
@@ -76,22 +98,20 @@ var _class = function () {
 
   }, {
     key: 'create',
-    value: function create(action, reducer) {
+    value: function create(name, action) {
       var _this2 = this;
 
-      this.listeners[action] = [];
+      this.listeners[name] = [];
 
-      this[action] = function () {
-        this.state = reducer.apply(this, arguments);
-        this.change(action);
+      this[name] = function () {
+        this.reducer = this.reducer.bind(this);
+        this.reducer(action.apply(this, arguments), name);
       };
 
-      var sugar = 'on' + (action.charAt(0).toUpperCase() + action.slice(1));
-      this[sugar] = function (cb) {
-        return _this2.listeners[action] = [].concat(_toConsumableArray(_this2.listeners[action]), [cb]);
+      var sugar = 'on' + (name.charAt(0).toUpperCase() + name.slice(1));
+      this[sugar] = function (l) {
+        return _this2.listeners[name] = [].concat(_toConsumableArray(_this2.listeners[name]), [l]);
       };
-
-      this.change(action);
     }
   }]);
 
