@@ -5,11 +5,19 @@ export default class {
   * @param {object} state - The inital state.
   * @param {function} setter - The function used to bind state to external tool.
   */
-	constructor(state, setter) {
+  constructor(state, setter) {
     this.state = state;
     this.setter = setter || function() {/*noop*/};
-    this.listeners = {};
+    this.listeners = { ['*']: [] };
     this.reserved = [...Object.keys(this), 'reserved'];
+  }
+
+  /**
+  * Subscribe to all changes.
+  * @param {function} er - The function to call on events.
+  */
+  subscribe(er) {
+    this.listeners['*'].push(er);
   }
 
  	/**
@@ -17,14 +25,14 @@ export default class {
   * @param {string} action - The action which triggered the change.
   */
   change(action) {
-  	if (this.listeners[action])
-    	this.listeners[action].map(f => f(this.state));
+    this.listeners[action].map(f => f(this.state));
+    this.listeners['*'].map(f => f(this.state));
 
     const actions = Object.assign({}, this);
     this.reserved.map(key => delete actions[key]);
 
-  	this.setter({
-    	state: this.state,
+    this.setter({
+      state: this.state,
       actions: actions
     });
   }
@@ -35,14 +43,17 @@ export default class {
   * @param {function} reducer - The actions associated reducer (must return state).
   */
   create(action, reducer) {
+    this.listeners[action] = [];
+
     this[action] = function() {
-    	this.state = reducer.apply(this, arguments);
+      this.state = reducer.apply(this, arguments);
       this.change(action);
     };
 
-    this[`on${action.charAt(0).toUpperCase() + action.slice(1)}`] = function(cb) {
-    	this.listeners[action] = (this.listeners[action]) ?
-      	[...this.listeners[action], cb] : [cb];
+    const sugar = `on${action.charAt(0).toUpperCase() + action.slice(1)}`;
+    this[sugar] = function(cb) {
+      this.listeners[action] = (this.listeners[action]) ?
+        [...this.listeners[action], cb] : [cb];
     }
 
     this.change(action);
