@@ -1,16 +1,24 @@
 # SimpleState
 
-SimpleState is a very simple state managmnet tool.
+SimpleState is an easy to use state managment tool complete with actions, reducers, and more. Best of all there is little to no boilerplating needed!
 
 ## Setup
 To start you'll need to create a new simple state, by calling `new SimpleState(initialState, setter)` where setter is a function
 called when the state changes, which has only one argument `state`. An example usage would look like...
+### Inital setup with no bindings
 ```javascript
 const simple = new SimpleState({
 	count: 0
-}, (state) => {
-  // Do something like setState here to bind the simplestate object to a components state.
-});
+}, (state) => console.log('internal state exposed here', state));
+```
+
+### Binding to React State
+```javascript
+componentWillMount() {
+  const simple = new SimpleState({
+    count: 0,
+  }, (state) => this.setState({ simple: state }));
+}
 ```
 
 ## Actions
