@@ -77,6 +77,8 @@ var _class = function () {
   }, {
     key: 'create',
     value: function create(action, reducer) {
+      var _this2 = this;
+
       this.listeners[action] = [];
 
       this[action] = function () {
@@ -86,7 +88,7 @@ var _class = function () {
 
       var sugar = 'on' + (action.charAt(0).toUpperCase() + action.slice(1));
       this[sugar] = function (cb) {
-        this.listeners[action] = [].concat(_toConsumableArray(this.listeners[action]), [cb]);
+        return _this2.listeners[action] = [].concat(_toConsumableArray(_this2.listeners[action]), [cb]);
       };
 
       this.change(action);
