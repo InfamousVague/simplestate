@@ -8,6 +8,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /** Class representing a SimpleState. */
@@ -22,22 +24,36 @@ var _class = function () {
 
     this.state = state;
     this.setter = setter || function () {/*noop*/};
-    this.listeners = {};
+    this.listeners = _defineProperty({}, '*', []);
     this.reserved = [].concat(_toConsumableArray(Object.keys(this)), ['reserved']);
   }
 
   /**
-  * Trigger a change to the state.
-  * @param {string} action - The action which triggered the change.
+  * Subscribe to all changes.
+  * @param {function} er - The function to call on events.
   */
 
 
   _createClass(_class, [{
+    key: 'subscribe',
+    value: function subscribe(er) {
+      this.listeners['*'].push(er);
+    }
+
+    /**
+    * Trigger a change to the state.
+    * @param {string} action - The action which triggered the change.
+    */
+
+  }, {
     key: 'change',
     value: function change(action) {
       var _this = this;
 
-      if (this.listeners[action]) this.listeners[action].map(function (f) {
+      this.listeners[action].map(function (f) {
+        return f(_this.state);
+      });
+      this.listeners['*'].map(function (f) {
         return f(_this.state);
       });
 
@@ -61,13 +77,16 @@ var _class = function () {
   }, {
     key: 'create',
     value: function create(action, reducer) {
+      this.listeners[action] = [];
+
       this[action] = function () {
         this.state = reducer.apply(this, arguments);
         this.change(action);
       };
 
-      this['on' + (action.charAt(0).toUpperCase() + action.slice(1))] = function (cb) {
-        this.listeners[action] = this.listeners[action] ? [].concat(_toConsumableArray(this.listeners[action]), [cb]) : [cb];
+      var sugar = 'on' + (action.charAt(0).toUpperCase() + action.slice(1));
+      this[sugar] = function (cb) {
+        this.listeners[action] = [].concat(_toConsumableArray(this.listeners[action]), [cb]);
       };
 
       this.change(action);

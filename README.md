@@ -107,8 +107,7 @@ export default class {
 
     const sugar = `on${action.charAt(0).toUpperCase() + action.slice(1)}`;
     this[sugar] = function(cb) {
-      this.listeners[action] = (this.listeners[action]) ?
-        [...this.listeners[action], cb] : [cb];
+      this.listeners[action] = [...this.listeners[action], cb];
     }
 
     this.change(action);
