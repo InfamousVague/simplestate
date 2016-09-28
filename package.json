@@ -1,0 +1,26 @@
+{
+  "name": "simplestate",
+  "version": "0.0.2",
+  "description": "A simple state container",
+  "main": "dist.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/wski/SimpleState.git"
+  },
+  "keywords": [
+    "simple",
+    "state",
+    "container",
+    "react",
+    "driven"
+  ],
+  "author": "wski <contact.mattdylan@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/u/wski/SimpleState/issues"
+  },
+  "homepage": "https://gitlab.com/u/wski/SimpleState"
+}
