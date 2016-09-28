@@ -14,7 +14,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var _change = Symbol('change');
+
 /** Class representing a SimpleState. */
+
 var _class = function () {
   /**
   * Create a state container.
@@ -30,7 +33,6 @@ var _class = function () {
     this.reducer = function () {
       return this.state;
     };
-    this.reserved = [].concat(_toConsumableArray(Object.keys(this)), ['reserved']);
   }
 
   /**
@@ -47,7 +49,7 @@ var _class = function () {
           type: name
         }));
 
-        this.change(name);
+        this[_change](name);
       };
     }
 
@@ -68,8 +70,8 @@ var _class = function () {
     */
 
   }, {
-    key: 'change',
-    value: function change(action) {
+    key: _change,
+    value: function value(action) {
       var _this = this;
 
       this.listeners[action].map(function (f) {
@@ -79,15 +81,7 @@ var _class = function () {
         return f(_this.state);
       });
 
-      var actions = Object.assign({}, this);
-      this.reserved.map(function (key) {
-        return delete actions[key];
-      });
-
-      this.setter({
-        state: this.state,
-        actions: actions
-      });
+      this.setter(this);
     }
 
     /**

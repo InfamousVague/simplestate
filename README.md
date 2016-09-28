@@ -108,7 +108,7 @@ simple.increment(5);
 const simple = new SimpleState(function() {
   return (localStorage.getItem('simplestate-state') === null) ?
     { count: 0 } : JSON.parse(localStorage.getItem('simplestate-state'));
-}, state => localStorage.setItem('simplestate-state', JSON.stringify(state)));
+}, simple => localStorage.setItem('simplestate-state', JSON.stringify(simple.state)));
 ```
 
 ### Binding to React State
@@ -118,11 +118,10 @@ constructor(props) {
   super(props);
 
   this.state = {
-    simpleCore: new SimpleState({
+    simple: new SimpleState({
       // Inital State
       account: false,
-    }, (state) => this.setState({ simpleState: state })),
-    simpleState: {},
+    }, simple => this.setState({ simple, })),
   };
 }
 ```

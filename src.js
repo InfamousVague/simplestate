@@ -1,3 +1,5 @@
+const _change = Symbol('change');
+
 /** Class representing a SimpleState. */
 export default class {
   /**
@@ -10,7 +12,6 @@ export default class {
     this.setter = setter || function() {/*noop*/};
     this.listeners = { ['*']: [] };
     this.reducer = function() { return this.state; };
-    this.reserved = [...Object.keys(this), 'reserved'];
   }
 
   /**
@@ -24,7 +25,7 @@ export default class {
         type: name,
       });
 
-      this.change(name);
+      this[_change](name);
     };
   }
 
@@ -40,17 +41,11 @@ export default class {
   * Trigger a change to the state.
   * @param {string} action - The action which triggered the change.
   */
-  change(action) {
+  [_change](action) {
     this.listeners[action].map(f => f(this.state));
     this.listeners['*'].map(f => f(this.state));
 
-    const actions = Object.assign({}, this);
-    this.reserved.map(key => delete actions[key]);
-
-    this.setter({
-      state: this.state,
-      actions: actions,
-    });
+    this.setter(this);
   }
 
   /**
