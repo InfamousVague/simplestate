@@ -1,4 +1,7 @@
 const _change = Symbol('change');
+const _setter = Symbol('setter');
+const _listeners = Symbol('listeners');
+const _reducers = Symbol('reducers');
 
 /** Class representing a SimpleState. */
 export default class {
@@ -9,9 +12,9 @@ export default class {
   */
   constructor(state, setter) {
     this.state = state;
-    this.setter = setter || function() {/*noop*/};
-    this.listeners = { ['*']: [] };
-    this.reducer = function() { return this.state; };
+    this[_setter] = setter || function() {/*noop*/};
+    this[_listeners] = { ['*']: [] };
+    this[_reducers] = function() { return this.state; };
   }
 
   /**
@@ -19,7 +22,7 @@ export default class {
   * @param {function} reducers - The function containing reducers.
   */
   reducers(reducers) {
-    this.reducer = function(action, name) {
+    this[_reducers] = function(action, name) {
       this.state = reducers.call(this, {
         ...action,
         type: name,
@@ -34,7 +37,7 @@ export default class {
   * @param {function} er - The function to call on events.
   */
   subscribe(er) {
-    this.listeners['*'].push(er);
+    this[_listeners]['*'].push(er);
   }
 
   /**
@@ -42,10 +45,15 @@ export default class {
   * @param {string} action - The action which triggered the change.
   */
   [_change](action) {
-    this.listeners[action].map(f => f(this.state));
-    this.listeners['*'].map(f => f(this.state));
+    this[_listeners][action].map(f => f(this.state));
+    this[_listeners]['*'].map(f => f(this.state));
 
-    this.setter(this);
+    // Prevent mutation of reducers and actions after first action is called.
+    const clensed = Object.assign({}, this);
+    delete clensed.create;
+    delete clensed.reducers;
+
+    this[_setter](clensed);
   }
 
   /**
@@ -54,14 +62,14 @@ export default class {
   * @param {function} reducer - The actions associated reducer (must return state).
   */
   create(name, action) {
-    this.listeners[name] = [];
+    this[_listeners][name] = [];
 
     this[name] = function() {
-      this.reducer = this.reducer.bind(this);
-      this.reducer(action.apply(this, arguments), name);
+      this[_reducers] = this[_reducers].bind(this);
+      this[_reducers](action.apply(this, arguments), name);
     };
 
     const sugar = `on${name.charAt(0).toUpperCase() + name.slice(1)}`;
-    this[sugar] = l => this.listeners[name] = [...this.listeners[name], l];
+    this[sugar] = l => this[_listeners][name] = [...this[_listeners][name], l];
   }
 }

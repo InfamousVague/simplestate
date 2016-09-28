@@ -15,6 +15,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _change = Symbol('change');
+var _setter = Symbol('setter');
+var _listeners = Symbol('listeners');
+var _reducers = Symbol('reducers');
 
 /** Class representing a SimpleState. */
 
@@ -28,9 +31,9 @@ var _class = function () {
     _classCallCheck(this, _class);
 
     this.state = state;
-    this.setter = setter || function () {/*noop*/};
-    this.listeners = _defineProperty({}, '*', []);
-    this.reducer = function () {
+    this[_setter] = setter || function () {/*noop*/};
+    this[_listeners] = _defineProperty({}, '*', []);
+    this[_reducers] = function () {
       return this.state;
     };
   }
@@ -43,9 +46,9 @@ var _class = function () {
 
   _createClass(_class, [{
     key: 'reducers',
-    value: function reducers(_reducers) {
-      this.reducer = function (action, name) {
-        this.state = _reducers.call(this, _extends({}, action, {
+    value: function reducers(_reducers2) {
+      this[_reducers] = function (action, name) {
+        this.state = _reducers2.call(this, _extends({}, action, {
           type: name
         }));
 
@@ -61,7 +64,7 @@ var _class = function () {
   }, {
     key: 'subscribe',
     value: function subscribe(er) {
-      this.listeners['*'].push(er);
+      this[_listeners]['*'].push(er);
     }
 
     /**
@@ -74,14 +77,19 @@ var _class = function () {
     value: function value(action) {
       var _this = this;
 
-      this.listeners[action].map(function (f) {
+      this[_listeners][action].map(function (f) {
         return f(_this.state);
       });
-      this.listeners['*'].map(function (f) {
+      this[_listeners]['*'].map(function (f) {
         return f(_this.state);
       });
 
-      this.setter(this);
+      // Prevent mutation of reducers and actions after first action is called.
+      var clensed = Object.assign({}, this);
+      delete clensed.create;
+      delete clensed.reducers;
+
+      this[_setter](clensed);
     }
 
     /**
@@ -95,16 +103,16 @@ var _class = function () {
     value: function create(name, action) {
       var _this2 = this;
 
-      this.listeners[name] = [];
+      this[_listeners][name] = [];
 
       this[name] = function () {
-        this.reducer = this.reducer.bind(this);
-        this.reducer(action.apply(this, arguments), name);
+        this[_reducers] = this[_reducers].bind(this);
+        this[_reducers](action.apply(this, arguments), name);
       };
 
       var sugar = 'on' + (name.charAt(0).toUpperCase() + name.slice(1));
       this[sugar] = function (l) {
-        return _this2.listeners[name] = [].concat(_toConsumableArray(_this2.listeners[name]), [l]);
+        return _this2[_listeners][name] = [].concat(_toConsumableArray(_this2[_listeners][name]), [l]);
       };
     }
   }]);
