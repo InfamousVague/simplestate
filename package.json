@@ -1,6 +1,6 @@
 {
   "name": "simplestate",
-  "version": "0.2.0",
+  "version": "0.2.5",
   "description": "A simple state container",
   "main": "dist.js",
   "scripts": {

@@ -14,16 +14,6 @@ const simple = new SimpleState({
 }, (state) => console.log('internal state exposed here', state));
 ```
 
-### Binding to React State
-
-```javascript
-componentWillMount() {
-  const simple = new SimpleState({
-    count: 0,
-  }, (state) => this.setState({ simple: state }));
-}
-```
-
 ## Actions
 
 ### Creating an action
@@ -109,3 +99,30 @@ simple.increment(5);
 
 
 ### That's it! The source is also tiny, if you'd like to skim through it [click here.](https://gitlab.com/wski/SimpleState/blob/master/src.js)
+
+# Extras
+
+## Bind state to localstorage for persistance
+
+```javascript
+const simple = new SimpleState(function() {
+  return (localStorage.getItem('simplestate-state') === null) ?
+    { count: 0 } : JSON.parse(localStorage.getItem('simplestate-state'));
+}, state => localStorage.setItem('simplestate-state', JSON.stringify(state)));
+```
+
+### Binding to React State
+
+```javascript
+constructor(props) {
+  super(props);
+
+  this.state = {
+    simpleCore: new SimpleState({
+      // Inital State
+      account: false,
+    }, (state) => this.setState({ simpleState: state })),
+    simpleState: {},
+  };
+}
+```
