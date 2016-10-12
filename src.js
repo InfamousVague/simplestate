@@ -12,9 +12,9 @@ export default class {
   */
   constructor(state, setter) {
     this.state = state;
-    this[_setter] = setter || function() {/*noop*/};
+    this[_setter] = setter || function() {};
     this[_listeners] = { ['*']: [] };
-    this[_reducers] = function() { return this.state; };
+    this[_reducers] = () => this.state;
   }
 
   /**
@@ -22,13 +22,13 @@ export default class {
   * @param {function} reducers - The function containing reducers.
   */
   reducers(reducers) {
-    this[_reducers] = function(action, name) {
+    this[_reducers] = function(action, type) {
       this.state = reducers.call(this, {
         ...action,
-        type: name,
+        type,
       });
 
-      this[_change](name);
+      this[_change](type);
     };
   }
 
@@ -66,8 +66,13 @@ export default class {
 
     this[name] = function() {
       this[_reducers] = this[_reducers].bind(this);
-      this[_reducers](action.apply(this, arguments), name);
-    };
+      this[_reducers]((action) ? action.apply(
+        this, arguments) : () => {},
+        name,
+      );
+
+      return this;
+    }
 
     const sugar = `on${name.charAt(0).toUpperCase() + name.slice(1)}`;
     this[sugar] = l => this[_listeners][name] = [...this[_listeners][name], l];

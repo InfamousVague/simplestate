@@ -26,6 +26,11 @@ simple.create('increment', function(incrementBy) {
   };
 });
 ```
+If your action doesn't require arguments, you can omit the function.
+```javascript
+simple.create('showMeWhatYouGot');
+```
+
 ## Reducers
 
 ### Creating your reducers
@@ -52,6 +57,11 @@ Using an action is simple, simply call the action and provide any arguments need
 
 ```javascript
 simple.increment(5);
+```
+
+Chaining is also supported.
+```javascript
+simple.increment(5).someOtherAction();
 ```
 
 ### Listening to an action

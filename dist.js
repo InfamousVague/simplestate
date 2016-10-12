@@ -28,13 +28,15 @@ var _class = function () {
   * @param {function} setter - The function used to bind state to external tool.
   */
   function _class(state, setter) {
+    var _this = this;
+
     _classCallCheck(this, _class);
 
     this.state = state;
-    this[_setter] = setter || function () {/*noop*/};
+    this[_setter] = setter || function () {};
     this[_listeners] = _defineProperty({}, '*', []);
     this[_reducers] = function () {
-      return this.state;
+      return _this.state;
     };
   }
 
@@ -47,12 +49,12 @@ var _class = function () {
   _createClass(_class, [{
     key: 'reducers',
     value: function reducers(_reducers2) {
-      this[_reducers] = function (action, name) {
+      this[_reducers] = function (action, type) {
         this.state = _reducers2.call(this, _extends({}, action, {
-          type: name
+          type: type
         }));
 
-        this[_change](name);
+        this[_change](type);
       };
     }
 
@@ -75,13 +77,13 @@ var _class = function () {
   }, {
     key: _change,
     value: function value(action) {
-      var _this = this;
+      var _this2 = this;
 
       this[_listeners][action].map(function (f) {
-        return f(_this.state);
+        return f(_this2.state);
       });
       this[_listeners]['*'].map(function (f) {
-        return f(_this.state);
+        return f(_this2.state);
       });
 
       // Prevent mutation of reducers and actions after first action is called.
@@ -101,18 +103,20 @@ var _class = function () {
   }, {
     key: 'create',
     value: function create(name, action) {
-      var _this2 = this;
+      var _this3 = this;
 
       this[_listeners][name] = [];
 
       this[name] = function () {
         this[_reducers] = this[_reducers].bind(this);
-        this[_reducers](action.apply(this, arguments), name);
+        this[_reducers](action ? action.apply(this, arguments) : function () {}, name);
+
+        return this;
       };
 
       var sugar = 'on' + (name.charAt(0).toUpperCase() + name.slice(1));
       this[sugar] = function (l) {
-        return _this2[_listeners][name] = [].concat(_toConsumableArray(_this2[_listeners][name]), [l]);
+        return _this3[_listeners][name] = [].concat(_toConsumableArray(_this3[_listeners][name]), [l]);
       };
     }
   }]);
