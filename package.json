@@ -1,6 +1,6 @@
 {
   "name": "simplestate",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "A simple state container",
   "main": "dist.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/wski/SimpleState.git"
+    "url": "git@github.com:wski/simplestate.git"
   },
   "keywords": [
     "simple",
@@ -20,7 +20,7 @@
   "author": "wski <contact.mattdylan@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://gitlab.com/u/wski/SimpleState/issues"
+    "url": "https://github.com/wski/SimpleState/issues"
   },
-  "homepage": "https://gitlab.com/u/wski/SimpleState"
+  "homepage": "https://github.com/wski/SimpleState"
 }
