@@ -1,6 +1,6 @@
 {
   "name": "simplestate",
-  "version": "0.3.3",
+  "version": "1.0.0",
   "description": "A simple state container",
   "main": "dist.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "driven"
   ],
   "author": "wski <contact.mattdylan@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/wski/SimpleState/issues"
   },

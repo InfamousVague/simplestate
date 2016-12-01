@@ -1,26 +1,36 @@
 const _change = Symbol('change');
-const _setter = Symbol('setter');
+const _socket = Symbol('socket');
 const _listeners = Symbol('listeners');
 const _reducers = Symbol('reducers');
 
 /** Class representing a SimpleState. */
 export default class {
   /**
-  * Create a state container.
-  * @param {object} state - The inital state.
-  * @param {function} setter - The function used to bind state to external tool.
-  */
-  constructor(state, setter) {
+   * Create a state container.
+   * @param {object} state - The inital state.
+   * @param {function} socket - The function used to bind state to external tool.
+   */
+  constructor(state) {
     this.state = state;
-    this[_setter] = setter || function() {};
+    this[_socket] = socket || function() {};
     this[_listeners] = { ['*']: [] };
     this[_reducers] = () => this.state;
   }
 
   /**
-  * Set reducers.
-  * @param {function} reducers - The function containing reducers.
-  */
+   * Connect to internal state.
+   * @param {function} socket - The function to send state to.
+   */
+
+  connect(socket) {
+    this[_socket] = socket;
+    return this;
+  }
+
+  /**
+   * Set reducers.
+   * @param {function} reducers - The function containing reducers.
+   */
   reducers(reducers) {
     this[_reducers] = function(action, type) {
       this.state = reducers.call(this, {
@@ -33,17 +43,17 @@ export default class {
   }
 
   /**
-  * Subscribe to all changes.
-  * @param {function} er - The function to call on events.
-  */
+   * Subscribe to all changes.
+   * @param {function} er - The function to call on events.
+   */
   subscribe(er) {
     this[_listeners]['*'].push(er);
   }
 
   /**
-  * Trigger a change to the state.
-  * @param {string} action - The action which triggered the change.
-  */
+   * Trigger a change to the state.
+   * @param {string} action - The action which triggered the change.
+   */
   [_change](action) {
     this[_listeners][action].map(f => f(this.state));
     this[_listeners]['*'].map(f => f(this.state));
@@ -53,14 +63,14 @@ export default class {
     delete clensed.create;
     delete clensed.reducers;
 
-    this[_setter](clensed);
+    this[_socket](clensed);
   }
 
   /**
-  * Create a new action / reducer.
-  * @param {string} action - The actions name.
-  * @param {function} reducer - The actions associated reducer (must return state).
-  */
+   * Create a new action / reducer.
+   * @param {string} action - The actions name.
+   * @param {function} reducer - The actions associated reducer (must return state).
+   */
   create(name, action) {
     this[_listeners][name] = [];
 

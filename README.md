@@ -3,15 +3,16 @@
 SimpleState is an easy to use state managment tool complete with actions, reducers, and more. Best of all there is minimal boilerplating needed!
 
 ## Setup
-To start you'll need to create a new simple state, by calling `new SimpleState(initialState, setter)` where setter is a function
-called when the state changes, which has only one argument `state`. An example usage would look like...
+To start you'll need to create a new simple state, by calling `new SimpleState(initialState)`. You can then use the `.connect()` method to connect to internal state.
 
-### Inital setup with no bindings
+### Inital setup
 
 ```javascript
 const simple = new SimpleState({
 	count: 0
-}, (state) => console.log('internal state exposed here', state));
+});
+
+simple.connect((simpleInternal) => /* internal state and actions exposed here */));
 ```
 
 ## Actions
@@ -26,7 +27,9 @@ simple.create('increment', function(incrementBy) {
   };
 });
 ```
+
 If your action doesn't require arguments, you can omit the function.
+
 ```javascript
 simple.create('showMeWhatYouGot');
 ```

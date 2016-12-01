@@ -15,7 +15,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _change = Symbol('change');
-var _setter = Symbol('setter');
+var _socket = Symbol('socket');
 var _listeners = Symbol('listeners');
 var _reducers = Symbol('reducers');
 
@@ -23,17 +23,17 @@ var _reducers = Symbol('reducers');
 
 var _class = function () {
   /**
-  * Create a state container.
-  * @param {object} state - The inital state.
-  * @param {function} setter - The function used to bind state to external tool.
-  */
-  function _class(state, setter) {
+   * Create a state container.
+   * @param {object} state - The inital state.
+   * @param {function} socket - The function used to bind state to external tool.
+   */
+  function _class(state) {
     var _this = this;
 
     _classCallCheck(this, _class);
 
     this.state = state;
-    this[_setter] = setter || function () {};
+    this[_socket] = socket || function () {};
     this[_listeners] = _defineProperty({}, '*', []);
     this[_reducers] = function () {
       return _this.state;
@@ -41,12 +41,23 @@ var _class = function () {
   }
 
   /**
-  * Set reducers.
-  * @param {function} reducers - The function containing reducers.
-  */
-
+   * Connect to internal state.
+   * @param {function} socket - The function to send state to.
+   */
 
   _createClass(_class, [{
+    key: 'connect',
+    value: function connect(socket) {
+      this[_socket] = socket;
+      return this;
+    }
+
+    /**
+     * Set reducers.
+     * @param {function} reducers - The function containing reducers.
+     */
+
+  }, {
     key: 'reducers',
     value: function reducers(_reducers2) {
       this[_reducers] = function (action, type) {
@@ -59,9 +70,9 @@ var _class = function () {
     }
 
     /**
-    * Subscribe to all changes.
-    * @param {function} er - The function to call on events.
-    */
+     * Subscribe to all changes.
+     * @param {function} er - The function to call on events.
+     */
 
   }, {
     key: 'subscribe',
@@ -70,9 +81,9 @@ var _class = function () {
     }
 
     /**
-    * Trigger a change to the state.
-    * @param {string} action - The action which triggered the change.
-    */
+     * Trigger a change to the state.
+     * @param {string} action - The action which triggered the change.
+     */
 
   }, {
     key: _change,
@@ -91,14 +102,14 @@ var _class = function () {
       delete clensed.create;
       delete clensed.reducers;
 
-      this[_setter](clensed);
+      this[_socket](clensed);
     }
 
     /**
-    * Create a new action / reducer.
-    * @param {string} action - The actions name.
-    * @param {function} reducer - The actions associated reducer (must return state).
-    */
+     * Create a new action / reducer.
+     * @param {string} action - The actions name.
+     * @param {function} reducer - The actions associated reducer (must return state).
+     */
 
   }, {
     key: 'create',
