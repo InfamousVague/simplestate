@@ -12,7 +12,7 @@ export default class {
    */
   constructor(state) {
     this.state = state;
-    this[_socket] = socket || function() {};
+    this[_socket] = this.socket || function() {};
     this[_listeners] = { ['*']: [] };
     this[_reducers] = () => this.state;
   }
@@ -33,13 +33,11 @@ export default class {
    */
   reducers(reducers) {
     this[_reducers] = function(action, type) {
-      this.state = reducers.call(this, {
-        ...action,
-        type,
-      });
+      const obj = Object.assign({}, action, { type })
+      this.state = reducers.call(this, obj)
 
-      this[_change](type);
-    };
+      this[_change](type)
+    }
   }
 
   /**
@@ -84,7 +82,14 @@ export default class {
       return this;
     }
 
-    const sugar = `on${name.charAt(0).toUpperCase() + name.slice(1)}`;
-    this[sugar] = l => this[_listeners][name] = [...this[_listeners][name], l];
+    const sugar = `on${name.charAt(0).toUpperCase() + name.slice(1)}`
+
+    this[sugar] = l => {
+      const arr = this[_listeners][name]
+      arr.push(l)
+      this[_listeners][name] = arr
+    }
+    // Awaiting spread to be adopted
+    // this[sugar] = l => this[_listeners][name] = [...this[_listeners][name], l];
   }
 }
