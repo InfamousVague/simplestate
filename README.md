@@ -10,9 +10,9 @@ To start you'll need to create a new simple state, by calling `new SimpleState(i
 ```javascript
 const simple = new SimpleState({
 	count: 0
-});
+})
 
-simple.connect((simpleInternal) => /* internal state and actions exposed here */));
+simple.connect((simpleInternal) => /* internal state and actions exposed here */))
 ```
 
 ## Actions
@@ -24,14 +24,14 @@ You create an action using `simple.create(name, action)`, the action should be a
 simple.create('increment', function(incrementBy) {
   return {
     value: this.state.count + incrementBy,
-  };
-});
+  }
+})
 ```
 
 If your action doesn't require arguments, you can omit the function.
 
 ```javascript
-simple.create('showMeWhatYouGot');
+simple.create('showMeWhatYouGot')
 ```
 
 ## Reducers
@@ -46,44 +46,51 @@ simple.reducers(function(action) {
       return {
         ...this.state,
         count: action.value,
-      };
-      break;
+      }
+      break
 
     default:
-      break;
+      break
   }
-});
+})
 ```
 
 ### Using an action
 Using an action is simple, simply call the action and provide any arguments needed for that actions reducer.
 
 ```javascript
-simple.increment(5);
+simple.increment(5)
 ```
 
 Chaining is also supported.
 ```javascript
-simple.increment(5).someOtherAction();
+simple.increment(5).someOtherAction()
 ```
 
 ### Listening to an action
 Listening to an action is simple as well, simply call the on method and provide the actions name, as well as a callback.
 
 ```javascript
-simple.onIncrement((state) => console.log('Increment incremented!', state));
+simple.onIncrement((state) => console.log('Increment incremented!', state))
 ```
 
 You can also listen to all changes with `subscribe`
 
 ```javascript
-simple.subscribe((state) => console.log('Internal state changed!', state));
+simple.subscribe((state) => console.log('Internal state changed!', state))
 ```
+
+### Binding to VueJS data object
+
+```javascript
+simple.connect(function(s) { app.simple = s })
+```
+
 
 ## Complete example
 
 ```javascript
-const simple = new SimpleState({ count: 0 });
+const simple = new SimpleState({ count: 0 })
 
 simple.reducers(function(action) {
   switch (action.type) {
@@ -91,23 +98,23 @@ simple.reducers(function(action) {
       return {
         ...this.state,
         count: action.value,
-      };
-      break;
+      }
+      break
 
     default:
-      break;
+      break
   }
-});
+})
 
 simple.create('increment', function(incrementBy) {
   return {
     value: this.state.count + incrementBy,
-  };
-});
+  }
+})
 
-simple.onIncrement(state => console.log('incremented', state));
+simple.onIncrement(state => console.log('incremented', state))
 
-simple.increment(5);
+simple.increment(5)
 ```
 
 
@@ -120,21 +127,22 @@ simple.increment(5);
 ```javascript
 const simple = new SimpleState(function() {
   return (localStorage.getItem('simplestate-state') === null) ?
-    { count: 0 } : JSON.parse(localStorage.getItem('simplestate-state'));
-}, simple => localStorage.setItem('simplestate-state', JSON.stringify(simple.state)));
+    { count: 0 } : JSON.parse(localStorage.getItem('simplestate-state'))
+}, simple => localStorage.setItem('simplestate-state', JSON.stringify(simple.state)))
 ```
+
 
 ### Binding to React State
 
 ```javascript
 constructor(props) {
-  super(props);
+  super(props)
 
   this.state = {
     simple: new SimpleState({
       // Inital State
       account: false,
     }, simple => this.setState({ simple, })),
-  };
+  }
 }
 ```
