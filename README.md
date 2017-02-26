@@ -80,9 +80,20 @@ You can also listen to all changes with `subscribe`
 simple.subscribe((state) => console.log('Internal state changed!', state))
 ```
 
-### Binding to VueJS data object
+### VueJS Example
 
 ```javascript
+const simple = new SimpleState({
+	count: 0
+})
+
+const app = new Vue({
+  el: '#app',
+  data: {
+    simple
+  }
+})
+
 simple.connect(function(s) { app.simple = s })
 ```
 
